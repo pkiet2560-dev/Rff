@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ẩn Giấu Thông Điệp</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; background-color: #f4f4f9; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        textarea { width: 100%; height: 80px; margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; }
+        button:hover { background: #1d4ed8; }
+        .result { margin-top: 20px; padding: 15px; background: #e0f2fe; border-left: 5px solid #0ea5e9; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Trình Giấu Chữ Tàng Hình</h2>
+    
+    <label>Văn bản hiển thị (Cái người ta sẽ thấy):</label>
+    <textarea id="publicText" placeholder="Ví dụ: Xin chào mọi người..."></textarea>
+    
+    <label>Thông điệp bí mật (Cái muốn giấu):</label>
+    <textarea id="secretText" placeholder="Ví dụ: Tôi tên Long"></textarea>
+    
+    <button onclick="encodeText()">Tạo văn bản ẩn</button>
+
+    <div id="outputContainer" style="display:none;">
+        <h3>Kết quả (Hãy copy đoạn dưới này):</h3>
+        <div class="result" id="result"></div>
+        <p><small>* Nhìn thì bình thường, nhưng mã nhị phân bên trong đã thay đổi.</small></p>
+    </div>
+</div>
+
+<script>
+    // Các ký tự tàng hình tương ứng với 0, 1 và dấu cách
+    const zero = "\u200B"; // Zero width space
+    const one = "\u200C";  // Zero width non-joiner
+    const gap = "\u200D";  // Zero width joiner
+
+    function textToBinary(text) {
+        return text.split('').map(char => {
+            return char.charCodeAt(0).toString(2).padStart(8, '0');
+        }).join(' ');
+    }
+
+    function encodeText() {
+        const publicT = document.getElementById('publicText').value;
+        const secretT = document.getElementById('secretText').value;
+        
+        if(!publicT || !secretT) return alert("Vui lòng nhập đủ cả 2 ô!");
+
+        // Chuyển secret sang nhị phân, sau đó sang ký tự tàng hình
+        const binary = textToBinary(secretT);
+        const hiddenData = binary.split('').map(bit => {
+            if (bit === '0') return zero;
+            if (bit === '1') return one;
+            return gap;
+        }).join('');
+
+        // Chèn vào giữa văn bản hiển thị
+        const mid = Math.floor(publicT.length / 2);
+        const finalContent = publicT.slice(0, mid) + hiddenData + publicT.slice(mid);
+
+        document.getElementById('result').innerText = finalContent;
+        document.getElementById('outputContainer').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
